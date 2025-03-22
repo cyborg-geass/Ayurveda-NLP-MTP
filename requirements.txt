@@ -32,7 +32,6 @@ imutils
 Jinja2
 joblib
 numba
-nest-asyncio
 nltk
 peft
 plotly
