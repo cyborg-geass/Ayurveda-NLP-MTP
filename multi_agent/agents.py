@@ -10,6 +10,8 @@ from langchain_groq import ChatGroq
 import operator
 from operator import itemgetter
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
 os.environ["GROQ_API_KEY"] = "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"
 os.environ["TAVILY_API_KEY"] = "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"

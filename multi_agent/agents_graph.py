@@ -5,6 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import List, TypedDict, Literal, Dict
 from langgraph.graph import StateGraph, END, START
 from langchain.memory import ConversationBufferMemory
+import warnings
+warnings.filterwarnings("ignore")
 
 class GraphState(TypedDict):
     """
@@ -37,7 +39,7 @@ def retrieve(state):
     Returns:
         state (dict): New key added to state, documents - that contains retrieved context documents
     """
-    print("---RETRIEVAL FROM VECTOR DB---")
+    # print("---RETRIEVAL FROM VECTOR DB---")
     question = state["question"]
 
     # Retrieval
@@ -93,7 +95,7 @@ def format_history(history: List[Dict[str, str]]) -> str:
     return "\n".join(formatted_messages)
 
 def grade_documents(state):
-    print("---CHECK DOCUMENT RELEVANCE TO QUESTION---")
+    # print("---CHECK DOCUMENT RELEVANCE TO QUESTION---")
     question = state["question"]
     documents = state["documents"]
 
@@ -114,10 +116,11 @@ def grade_documents(state):
 
         # Consider the document relevant if score >= 3 (adjust threshold as needed)
         if score >= 3:
-            print(f"---GRADE: Document scored {score} and is relevant ---")
+            # print(f"---GRADE: Document scored {score} and is relevant ---")
             relevant_docs.append(d)
         else:
-            print(f"---GRADE: Document scored {score} and is not relevant ---")
+            continue
+            # print(f"---GRADE: Document scored {score} and is not relevant ---")
 
     # Option 1: Use average score to decide if web search is needed
     avg_score = total_score / num_docs if num_docs > 0 else 0
@@ -141,7 +144,7 @@ def web_search(state):
         state (dict): Updates documents key with appended web results
     """
 
-    print("---WEB SEARCH---")
+    # print("---WEB SEARCH---")
     question = state["question"]
     documents = state["documents"]
 
@@ -184,7 +187,7 @@ response_prompt = ChatPromptTemplate.from_template("""
 # Modified Generate Answer Node
 def generate_answer(state: GraphState):
     """Node: Generate emotion-aware response"""
-    print("---GENERATING EMOTION-AWARE RESPONSE---")
+    # print("---GENERATING EMOTION-AWARE RESPONSE---")
     history_str = format_history(state["history"])
     
     # Build prompt with emotion context
@@ -224,17 +227,17 @@ def decide_to_generate(state):
         str: Binary decision for next node to call
     """
 
-    print("---ASSESS GRADED DOCUMENTS---")
+    # print("---ASSESS GRADED DOCUMENTS---")
     web_search_needed = state["web_search_needed"]
 
     if web_search_needed == "Yes":
         # All documents have been filtered check_relevance
         # We will re-generate a new query
-        print("---DECISION: SOME or ALL DOCUMENTS ARE NOT RELEVANT TO QUESTION, REWRITE QUERY---")
+        # print("---DECISION: SOME or ALL DOCUMENTS ARE NOT RELEVANT TO QUESTION, REWRITE QUERY---")
         return "rewrite_query"
     else:
         # We have relevant documents, so generate answer
-        print("---DECISION: GENERATE RESPONSE---")
+        # print("---DECISION: GENERATE RESPONSE---")
         return "generate_answer"
 
 # rewrite_query = query_rewriter_agent(state)
