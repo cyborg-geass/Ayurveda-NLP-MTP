@@ -59,7 +59,7 @@ def get_documents_from_directory(directory):
                 documents.append(Document(page_content=content, metadata=metadata))
     return documents
 
-def vectorstore_save(directory):
+def vectorstore_save(directory, vector_path):
     """
     Extracts content from PDFs in the specified directory and returns a list of Document objects.
     """
@@ -70,12 +70,16 @@ def vectorstore_save(directory):
     )
     split_chunks = text_splitter.split_documents(docs)
     vectorstore = FAISS.from_documents(split_chunks, embeddings)
-    vectorstore.save("RAG_Ayurvedic_MultiAgent")
+    vectorstore.save(vector_path)
 
-def retrieval(vectorstore_path):
+def retrieval(vectorstore_path, save=True):
     """
     Load the vectorstore and return a retriever object.
     """
+    if not os.path.exists(vectorstore_path) and save is False:
+        raise FileNotFoundError(f"Vectorstore not found at path: {vectorstore_path}")
+    elif not os.path.exists(vectorstore_path) and save is True:
+        vectorstore_save("PDF_Data_Directory", vectorstore_path)
     vectorstore = FAISS.load_local(vectorstore_path, embeddings, allow_dangerous_deserialization=True)
     retriever = vectorstore.as_retriever()
     return retriever

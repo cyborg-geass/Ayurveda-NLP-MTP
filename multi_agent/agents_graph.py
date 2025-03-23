@@ -43,7 +43,7 @@ def retrieve(state):
     # Retrieval
     retriever = None
     try:
-        retriever = retrieval("RAG_MultiAgent_Ayurveda")
+        retriever = retrieval("RAG_MultiAgent_Ayurveda", save=False)
     except Exception as e:
         print(f"Error initializing retriever: {e}")
     
