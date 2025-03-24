@@ -15,9 +15,17 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-1. Now to start the bot just type in cmd:
+1. Go to the main directory and create a file named '.env' in the same directory.
 ```bash
 cd multi_agent/
+```
+2. In the .env file just type (don't use any spaces or ""):
+```bash
+GROQ_API_KEY=your_api_key
+TAVILY_API_KEY=your_api_key
+```
+3. Now to start the bot just type in cmd:
+```bash
 python chatbot.py
 ```
-2. To exit the chatbot just type "exit" in the terminal.
+4. To exit the chatbot just type "exit" in the terminal.
