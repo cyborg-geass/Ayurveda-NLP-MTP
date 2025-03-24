@@ -10,15 +10,23 @@ from langchain_groq import ChatGroq
 import operator
 from operator import itemgetter
 import numpy as np
+from dotenv import load_dotenv
 import warnings
 warnings.filterwarnings("ignore")
 
-os.environ["GROQ_API_KEY"] = "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"
-os.environ["TAVILY_API_KEY"] = "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"
+load_dotenv()
+
+# os.environ["GROQ_API_KEY"] = ""
+# os.environ["TAVILY_API_KEY"] = ""
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
 
 llm = ChatGroq(
     temperature=0,
-    model_name="qwen-2.5-32b"
+    model_name="qwen-2.5-32b",
+    api_key=GROQ_API_KEY,
 )
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
@@ -110,5 +118,6 @@ def search_agent():
         max_results=8,
         search_depth="advanced",
         max_tokens=10000,
+        api_key=TAVILY_API_KEY,
     )
     return tv_search
