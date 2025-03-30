@@ -12,19 +12,25 @@ sys.path.append(str(project_root))
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from multi_agent.agents_graph import agentic_rag, memory
 import uvicorn
+import uuid
+import json
 
 app = FastAPI(title="Ayurveda Companion API")
+
+chat_sessions: Dict[str, List[Dict[str, str]]] = {}
 
 class QueryRequest(BaseModel):
     question: str
     history: List[Dict[str, str]] = []
+    session_id: Optional[str] = None
 
 class QueryResponse(BaseModel):
     answer: str
     history: List[Dict[str, str]]
+    session_id: str
 
 def process_query(question: str, history: List[Dict[str, str]]):
     state = {
@@ -44,9 +50,12 @@ def home():
 
 @app.post("/askanythingayurveda", response_model=QueryResponse)
 def ask_anything_ayurveda(query: QueryRequest):
+    session_id = query.session_id or str(uuid.uuid4())
+    history = chat_sessions.get(session_id, [])
     try:
-        answer, updated_history = process_query(query.question, query.history)
-        return QueryResponse(answer=answer, history=updated_history)
+        answer, updated_history = process_query(query.question, history)
+        chat_sessions[session_id] = updated_history
+        return QueryResponse(answer=answer, history=updated_history, session_id=session_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
