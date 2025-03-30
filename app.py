@@ -16,12 +16,22 @@ from typing import List, Dict, Any, Optional
 from multi_agent.agents_graph import agentic_rag, memory
 import uvicorn
 import uuid
+import redis
 import json
 
 app = FastAPI(title="Ayurveda Companion API")
 
 chat_sessions: Dict[str, List[Dict[str, str]]] = {}
-
+# REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+# redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True, ssl=True)
+redis_client = redis.Redis(
+    host='redis-18744.crce179.ap-south-1-1.ec2.redns.redis-cloud.com',
+    port=18744,
+    decode_responses=True,
+    username="default",
+    password="bor1qAwik9vEK8dXkhYJ6Ixq2Ggjt0yi",
+    # ssl=True,
+)
 class QueryRequest(BaseModel):
     question: str
     history: List[Dict[str, str]] = []
@@ -31,6 +41,15 @@ class QueryResponse(BaseModel):
     answer: str
     history: List[Dict[str, str]]
     session_id: str
+
+def get_history_from_redis(session_id: str) -> List[Dict[str, str]]:
+    data = redis_client.get(f"session:{session_id}")
+    if data:
+        return json.loads(data)
+    return []
+
+def save_history_to_redis(session_id: str, history: List[Dict[str, str]]):
+    redis_client.set(f"session:{session_id}", json.dumps(history))
 
 def process_query(question: str, history: List[Dict[str, str]]):
     state = {
@@ -52,9 +71,11 @@ def home():
 def ask_anything_ayurveda(query: QueryRequest):
     session_id = query.session_id or str(uuid.uuid4())
     history = chat_sessions.get(session_id, [])
+    # history = get_history_from_redis(session_id)
     try:
         answer, updated_history = process_query(query.question, history)
         chat_sessions[session_id] = updated_history
+        # save_history_to_redis(session_id, updated_history)
         return QueryResponse(answer=answer, history=updated_history, session_id=session_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

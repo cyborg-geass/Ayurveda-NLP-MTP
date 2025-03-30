@@ -39,3 +39,4 @@ safetensors
 sentence-transformers
 sentencepiece
 timm
+redis
