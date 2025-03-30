@@ -11,6 +11,7 @@ project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from multi_agent.agents_graph import agentic_rag, memory
@@ -20,6 +21,8 @@ import redis
 import json
 
 app = FastAPI(title="Ayurveda Companion API")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 chat_sessions: Dict[str, List[Dict[str, str]]] = {}
 # REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
