@@ -7,7 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
 from langchain_groq import ChatGroq
-from tracking import callback_manager
+from .tracking import callback_manager, tracer
 import operator
 from operator import itemgetter
 import numpy as np
@@ -28,7 +28,7 @@ llm = ChatGroq(
     temperature=0,
     model_name="qwen-2.5-32b",
     api_key=GROQ_API_KEY,
-    callbacks=[callback_manager],
+    callbacks=[tracer],
 )
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2"

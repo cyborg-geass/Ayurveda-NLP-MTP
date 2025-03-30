@@ -1,11 +1,12 @@
-from retrieval import retrieval
-from agents import document_grader_agent, search_agent, qa_agent, query_rewriter_agent, emotion, llm
+from .retrieval import retrieval
+from .agents import document_grader_agent, search_agent, qa_agent, query_rewriter_agent, emotion, llm
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from typing import List, TypedDict, Literal, Dict
 from langgraph.graph import StateGraph, END, START
 from langchain.memory import ConversationBufferMemory
 import warnings
+from pathlib import Path
 warnings.filterwarnings("ignore")
 
 class GraphState(TypedDict):
@@ -31,29 +32,41 @@ memory = ConversationBufferMemory()
 
 def retrieve(state):
     """
-    Retrieve documents
-
+    Retrieve documents from vector store
+    
     Args:
         state (dict): The current graph state
-
     Returns:
         state (dict): New key added to state, documents - that contains retrieved context documents
     """
     # print("---RETRIEVAL FROM VECTOR DB---")
     question = state["question"]
 
-    # Retrieval
-    retriever = None
-    try:
-        retriever = retrieval("RAG_MultiAgent_Ayurveda", save=False)
-    except Exception as e:
-        print(f"Error initializing retriever: {e}")
+    # Get absolute path to vector store
+    current_dir = Path(__file__).parent
+    vector_store_path = current_dir / "RAG_MultiAgent_Ayurveda"
     
-    if retriever is None:
-        raise ValueError("Retriever could not be initialized.")
-    # retriever = retriever("../RAG_MultiAgent_Ayurveda")
-    documents = retriever.invoke(question)
-    return {"documents": documents, "question": question}
+    # Ensure vector store directory exists
+    if not vector_store_path.exists():
+        raise ValueError(f"Vector store directory not found at: {vector_store_path}")
+
+    # Retrieval with proper error handling
+    try:
+        retriever = retrieval(str(vector_store_path), save=False)
+        if retriever is None:
+            raise ValueError("Retriever initialization failed")
+            
+        documents = retriever.invoke(question)
+        if not documents:
+            print("No relevant documents found")
+            documents = []
+            
+        return {"documents": documents, "question": question}
+        
+    except Exception as e:
+        print(f"Error during retrieval: {e}")
+        # Return empty documents list instead of failing
+        return {"documents": [], "question": question}
 
 def detect_emotion(state):
     emotion_chain = emotion()

@@ -1,3 +1,15 @@
+import sys
+from pathlib import Path
+import os
+import warnings
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Add project root to Python path
+project_root = Path(__file__).parent
+sys.path.append(str(project_root))
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
@@ -26,11 +38,24 @@ def process_query(question: str, history: List[Dict[str, str]]):
     result = agentic_rag.invoke(state)
     return result['generation'], result['history']
 
+@app.get("/")
+def home():
+    return {"message": "Welcome to the Ayurveda Companion API. Please visit /docs for API documentation."}
+
 @app.post("/askanythingayurveda", response_model=QueryResponse)
 def ask_anything_ayurveda(query: QueryRequest):
     try:
         answer, updated_history = process_query(query.question, query.history)
         return QueryResponse(answer=answer, history=updated_history)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/askanythingayurveda")
+def ask_question_get(question: str):
+    # For GET testing purposes only; this won't include chat history
+    try:
+        answer, _ = process_query(question, [])
+        return {"question": question, "answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
