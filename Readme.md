@@ -25,7 +25,7 @@ GROQ_API_KEY=your_api_key
 TAVILY_API_KEY=your_api_key
 LANGSMITH_TRACING=true
 LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
-LANGSMITH_API_KEY="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"
+LANGSMITH_API_KEY=your_api_key
 LANGSMITH_PROJECT="Ayurveda_companion"
 ```
 3. Now to start the bot just type in cmd:
