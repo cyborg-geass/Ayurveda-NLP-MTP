@@ -12,9 +12,14 @@
     
     WORKDIR /app
     
-    # Copy requirements file and install dependencies using uv
+    # Copy requirements file
     COPY requirements.txt .
+    
+    # Install dependencies using uv
     RUN uv pip install --system --no-cache-dir -r requirements.txt
+    
+    # Explicitly install uvicorn (in case it's missing from requirements.txt)
+    RUN pip install --no-cache-dir uvicorn
     
     # Copy the entire project
     COPY . .
@@ -27,22 +32,22 @@
         apt-get install -y --no-install-recommends curl && \
         rm -rf /var/lib/apt/lists/*
     
-    # Install uv in the runtime stage (if needed for consistency)
-    RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-        ln -s /root/.local/bin/uv /usr/local/bin/uv
+    # Explicitly install uvicorn in the runtime container
+    RUN pip install --no-cache-dir uvicorn
     
     WORKDIR /app
     
     # Copy project files from the builder stage
     COPY --from=builder /app /app
+    COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
     
     # Expose the application port (adjust if needed)
     EXPOSE 8000
     
-    # Environment variables (if you want to set some defaults; additional variables come from --env-file)
+    # Environment variables
     ENV PORT=8000 \
-        BASE_URL="http://localhost:8000"
+        BASE_URL="http://localhost:8000" \
+        PYTHONPATH=/app
     
     # Run the FastAPI application using python as entrypoint
     CMD ["python", "app.py"]
-    
