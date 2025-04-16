@@ -22,7 +22,6 @@ tiktoken
 tavily-python
 httpx
 huggingface-hub
-huggingface_hub[hf_xet]
 transformers
 torch
 torchvision
