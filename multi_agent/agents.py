@@ -26,7 +26,7 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 llm = ChatGroq(
     temperature=0,
-    model_name="qwen-2.5-32b",
+    model_name="meta-llama/llama-4-scout-17b-16e-instruct",
     api_key=GROQ_API_KEY,
     callbacks=[tracer],
 )

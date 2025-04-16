@@ -1,12 +1,10 @@
 numpy
 pandas
-matplotlib
 accelerate
 chromadb
 einops
 faiss-cpu
 fastapi
-Flask
 groq
 PyMuPDF
 pypdf
@@ -40,3 +38,4 @@ sentence-transformers
 sentencepiece
 timm
 redis
+python-dotenv
