@@ -21,6 +21,7 @@
     # Explicitly install uvicorn (in case it's missing from requirements.txt)
     RUN pip install --no-cache-dir uvicorn
     RUN pip install --no-cache-dir huggingface_hub[hf_xet]
+    RUN pip install --no-cache-dir python-dotenv
     
     # Copy the entire project
     COPY . .
